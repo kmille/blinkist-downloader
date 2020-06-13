@@ -4,6 +4,7 @@ from pycookiecheat import chrome_cookies
 import os
 import requests
 from shlex import quote
+import argparse
 
 out_dir = "data"
 
@@ -40,18 +41,24 @@ def download_chapters(link_to_blink):
         else:
             with open(output_file + ".m4a", "wb") as f:
                 f.write(resp.content)
-        print(f"Downloaded with chapter {i}")
+            print(f"Downloaded: {output_file}.m4a")
         cmd = f"ffmpeg -v 5 -y -i {quote(output_file)}.m4a -acodec libmp3lame -ac 2 -ab 320k {quote(output_file)}.mp3"
         print(f"Executing {cmd}")
         os.system(cmd)
-        print("Converted to mp3")
-        print("Deleting m4a file")
         cmd = f"rm {quote(output_file)}.m4a"
         print(f"Executing {cmd}")
         os.system(cmd)
 
 
 if __name__ == '__main__':
-    url = "https://www.blinkist.com/de/nc/reader/how-to-have-impossible-conversations-en"
-    download_chapters(url)
+    parser = argparse.ArgumentParser(description="Downloads blinks from blinkist.com")
+    parser.add_argument("--url", "-u",
+                        dest='url',
+                        required=True,
+                        help="url to a blink like https://www.blinkist.com/de/nc/reader/how-to-have-impossible-conversations-en")
+    args = parser.parse_args()
+    if not args.url.startswith("https://"):
+        print("invalid url")
+        exit(1)
+    download_chapters(args.url)
 
